@@ -73,6 +73,9 @@ Dokumentacja API %{module}.
 %prep
 %setup -q -n %{module}-%{version}
 
+install -d examples
+cp -p src/nagiosplugin/examples/check_*.py examples
+
 %build
 %if %{with python2}
 %{__python} setup.py build --build-base build-2 %{?with_tests:test}
@@ -100,8 +103,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__rm} -r $RPM_BUILD_ROOT%{py_sitescriptdir}/%{module}/examples
 %{__rm} -r $RPM_BUILD_ROOT%{py_sitescriptdir}/%{module}/tests
-
 %py_postclean
+
+install -d $RPM_BUILD_ROOT%{_examplesdir}/python-%{module}-%{version}
+cp -a examples/* $RPM_BUILD_ROOT%{_examplesdir}/python-%{module}-%{version}
 %endif
 
 %if %{with python3}
@@ -113,6 +118,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__rm} -r $RPM_BUILD_ROOT%{py3_sitescriptdir}/%{module}/examples
 %{__rm} -r $RPM_BUILD_ROOT%{py3_sitescriptdir}/%{module}/tests
+
+install -d $RPM_BUILD_ROOT%{_examplesdir}/python3-%{module}-%{version}
+cp -a examples/* $RPM_BUILD_ROOT%{_examplesdir}/python3-%{module}-%{version}
 %endif
 
 %clean
@@ -124,6 +132,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc HACKING.txt CONTRIBUTORS.txt HISTORY.txt README.txt
 %{py_sitescriptdir}/%{module}
 %{py_sitescriptdir}/%{module}-%{version}-py*.egg-info
+%{_examplesdir}/python-%{module}-%{version}
 %endif
 
 %if %{with python3}
@@ -132,6 +141,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc HACKING.txt CONTRIBUTORS.txt HISTORY.txt README.txt
 %{py3_sitescriptdir}/%{module}
 %{py3_sitescriptdir}/%{module}-%{version}-py*.egg-info
+%{_examplesdir}/python3-%{module}-%{version}
 %endif
 
 %if %{with doc}
