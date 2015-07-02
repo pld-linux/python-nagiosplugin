@@ -1,5 +1,6 @@
 # TODO:
 # Split examplest to separate module
+#
 # Conditional build:
 %bcond_with	doc		# don't build doc
 %bcond_without	tests	# do not perform "make test"
@@ -9,24 +10,16 @@
 %define 	module	nagiosplugin
 Summary:	Python class library which helps writing Nagios (or Icinga) compatible plugins easily in Python
 Summary(pl.UTF-8):	Biblioteka klas Pythona pomagająca łatwo pisać wtyczki dla Nagiosa (lub Icingi) w Pythonie
-# Name must match the python module/package name (as in 'import' statement)
 Name:		python-%{module}
 Version:	1.2.2
 Release:	1
 License:	ZPL 2.1
 Group:		Libraries/Python
-
-# https://pypi.python.org/packages/source/n/nagiosplugin/nagiosplugin-1.2.2.tar.gz
 Source0:	https://pypi.python.org/packages/source/n/%{module}/%{module}-%{version}.tar.gz
 # Source0-md5:	c85e1641492d606d929b02aa262bf55d
 URL:		nagiosplugin
 BuildRequires:	rpm-pythonprov
-# remove BR: python-devel for 'noarch' packages.
-# if py_postclean is used
 BuildRequires:	rpmbuild(macros) >= 1.219
-# when using /usr/bin/env or other in-place substitutions
-#BuildRequires:	sed >= 4.0
-# when python3 present
 %if %{with python2}
 BuildRequires:	python-devel
 BuildRequires:	python-setuptools
@@ -36,8 +29,6 @@ BuildRequires:	python3-devel
 BuildRequires:	python3-modules
 BuildRequires:	python3-setuptools
 %endif
-# Below Rs only work for main package (python2)
-#Requires:		python-libs
 Requires:	python-modules
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -53,8 +44,8 @@ wtyczki dla Nagiosa (lub Icingi) w Pythonie. Dostarcza większość
 typowego kodu i domyślna logikę zawartą w testach Nagiosa.
 
 %package -n python3-%{module}
-Summary:	-
-Summary(pl.UTF-8):	-
+Summary:	Python class library which helps writing Nagios (or Icinga) compatible plugins easily in Python
+Summary(pl.UTF-8):	Biblioteka klas Pythona pomagająca łatwo pisać wtyczki dla Nagiosa (lub Icingi) w Pythonie
 Group:		Libraries/Python
 Requires:	python3-modules
 
@@ -82,14 +73,6 @@ Dokumentacja API %{module}.
 %prep
 %setup -q -n %{module}-%{version}
 
-# fix #!%{_bindir}/env python -> #!%{_bindir}/python:
-#%{__sed} -i -e '1s,^#!.*python,#!%{__python},' %{name}.py
-
-# setup copy of source in py3 dir
-set -- *
-install -d py3
-cp -a "$@" py3
-
 %build
 %if %{with python2}
 %{__python} setup.py build --build-base build-2 %{?with_tests:test}
@@ -115,6 +98,9 @@ rm -rf $RPM_BUILD_ROOT
 	--optimize=2 \
 	--root=$RPM_BUILD_ROOT
 
+%{__rm} -r $RPM_BUILD_ROOT%{py_sitescriptdir}/%{module}/examples
+%{__rm} -r $RPM_BUILD_ROOT%{py_sitescriptdir}/%{module}/tests
+
 %py_postclean
 %endif
 
@@ -124,15 +110,10 @@ rm -rf $RPM_BUILD_ROOT
 	install --skip-build \
 	--optimize=2 \
 	--root=$RPM_BUILD_ROOT
+
+%{__rm} -r $RPM_BUILD_ROOT%{py3_sitescriptdir}/%{module}/examples
+%{__rm} -r $RPM_BUILD_ROOT%{py3_sitescriptdir}/%{module}/tests
 %endif
-
-
-# when files are installed in other way that standard 'setup.py
-# they need to be (re-)compiled
-## change %{py_sitedir} to %{py_sitescriptdir} for 'noarch' packages!
-#%%py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
-#%%py_comp $RPM_BUILD_ROOT%{py_sitedir}
-#%%py_postclean
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -141,17 +122,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc HACKING.txt CONTRIBUTORS.txt HISTORY.txt README.txt
-# change %{py_sitedir} to %{py_sitescriptdir} for 'noarch' packages!
-%dir %{py_sitescriptdir}/%{module}
-%{py_sitescriptdir}/%{module}/*.py[co]
-%dir %{py_sitescriptdir}/%{module}/platform
-%{py_sitescriptdir}/%{module}/platform/*.py[co]
-%dir %{py_sitescriptdir}/%{module}/tests
-%{py_sitescriptdir}/%{module}/tests/*.py[co]
-%if "%{py_ver}" > "2.4"
+%{py_sitescriptdir}/%{module}
 %{py_sitescriptdir}/%{module}-%{version}-py*.egg-info
-%endif
-# %{_examplesdir}/%{name}-%{version}
 %endif
 
 %if %{with python3}
@@ -160,7 +132,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc HACKING.txt CONTRIBUTORS.txt HISTORY.txt README.txt
 %{py3_sitescriptdir}/%{module}
 %{py3_sitescriptdir}/%{module}-%{version}-py*.egg-info
-# %{_examplesdir}/python3-%{module}-%{version}
 %endif
 
 %if %{with doc}
