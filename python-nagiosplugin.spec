@@ -78,11 +78,11 @@ cp -p src/nagiosplugin/examples/check_*.py examples
 
 %build
 %if %{with python2}
-%{__python} setup.py build --build-base build-2 %{?with_tests:test}
+%py_build %{?with_tests:test}
 %endif
 
 %if %{with python3}
-%{__python3} setup.py build --build-base build-3 %{?with_tests:test}
+%py3_build %{?with_tests:test}
 %endif
 
 %if %{with doc}
@@ -95,11 +95,7 @@ rm -rf _build/html/_sources
 rm -rf $RPM_BUILD_ROOT
 
 %if %{with python2}
-%{__python} setup.py \
-	build --build-base build-2 \
-	install --skip-build \
-	--optimize=2 \
-	--root=$RPM_BUILD_ROOT
+%py_install
 
 %{__rm} -r $RPM_BUILD_ROOT%{py_sitescriptdir}/%{module}/examples
 %{__rm} -r $RPM_BUILD_ROOT%{py_sitescriptdir}/%{module}/tests
@@ -110,11 +106,7 @@ cp -a examples/* $RPM_BUILD_ROOT%{_examplesdir}/python-%{module}-%{version}
 %endif
 
 %if %{with python3}
-%{__python3} setup.py \
-	build --build-base build-3 \
-	install --skip-build \
-	--optimize=2 \
-	--root=$RPM_BUILD_ROOT
+%py3_install
 
 %{__rm} -r $RPM_BUILD_ROOT%{py3_sitescriptdir}/%{module}/examples
 %{__rm} -r $RPM_BUILD_ROOT%{py3_sitescriptdir}/%{module}/tests
