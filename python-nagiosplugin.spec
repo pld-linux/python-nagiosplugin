@@ -19,7 +19,7 @@ Source0:	https://pypi.python.org/packages/source/n/%{module}/%{module}-%{version
 # Source0-md5:	c85e1641492d606d929b02aa262bf55d
 URL:		nagiosplugin
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.219
+BuildRequires:	rpmbuild(macros) >= 1.710
 %if %{with python2}
 BuildRequires:	python-devel
 BuildRequires:	python-setuptools
