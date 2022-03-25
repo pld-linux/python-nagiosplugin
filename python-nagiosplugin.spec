@@ -12,7 +12,7 @@ Summary:	Python class library which helps writing Nagios (or Icinga) compatible 
 Summary(pl.UTF-8):	Biblioteka klas Pythona pomagająca łatwo pisać wtyczki dla Nagiosa (lub Icingi) w Pythonie
 Name:		python-%{module}
 Version:	1.2.2
-Release:	8
+Release:	9
 License:	ZPL 2.1
 Group:		Libraries/Python
 Source0:	https://pypi.python.org/packages/source/n/%{module}/%{module}-%{version}.tar.gz
