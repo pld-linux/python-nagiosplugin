@@ -11,23 +11,29 @@
 Summary:	Python class library which helps writing Nagios (or Icinga) compatible plugins easily in Python
 Summary(pl.UTF-8):	Biblioteka klas Pythona pomagająca łatwo pisać wtyczki dla Nagiosa (lub Icingi) w Pythonie
 Name:		python-%{module}
-Version:	1.2.2
-Release:	11
+Version:	1.3.3
+Release:	1
 License:	ZPL 2.1
 Group:		Libraries/Python
-Source0:	https://pypi.python.org/packages/source/n/%{module}/%{module}-%{version}.tar.gz
-# Source0-md5:	c85e1641492d606d929b02aa262bf55d
+Source0:	https://pypi.debian.net/%{module}/%{module}-%{version}.tar.gz
+# Source0-md5:	7539bf58002fb1285706d91e94dd4e26
 URL:		nagiosplugin
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.710
 %if %{with python2}
 BuildRequires:	python-devel
 BuildRequires:	python-setuptools
+%if %{with tests}
+BuildRequires:  python-pytest
+%endif
 %endif
 %if %{with python3}
 BuildRequires:	python3-devel
 BuildRequires:	python3-modules
 BuildRequires:	python3-setuptools
+%if %{with tests}
+BuildRequires:  python3-pytest
+%endif
 %endif
 Requires:	python-modules
 BuildArch:	noarch
@@ -74,15 +80,24 @@ Dokumentacja API %{module}.
 %setup -q -n %{module}-%{version}
 
 install -d examples
-cp -p src/nagiosplugin/examples/check_*.py examples
+cp -p nagiosplugin/examples/check_*.py examples
 
 %build
 %if %{with python2}
-%py_build %{?with_tests:test}
+%py_build
+
+%if %{with tests}
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+%{__python} -m pytest tests
+%endif
 %endif
 
 %if %{with python3}
-%py3_build %{?with_tests:test}
+%py3_build
+
+%if %{with tests}
+%{__python3} -m pytest tests
+%endif
 %endif
 
 %if %{with doc}
@@ -98,7 +113,6 @@ rm -rf $RPM_BUILD_ROOT
 %py_install
 
 %{__rm} -r $RPM_BUILD_ROOT%{py_sitescriptdir}/%{module}/examples
-%{__rm} -r $RPM_BUILD_ROOT%{py_sitescriptdir}/%{module}/tests
 %py_postclean
 
 install -d $RPM_BUILD_ROOT%{_examplesdir}/python-%{module}-%{version}
@@ -109,7 +123,6 @@ cp -a examples/* $RPM_BUILD_ROOT%{_examplesdir}/python-%{module}-%{version}
 %py3_install
 
 %{__rm} -r $RPM_BUILD_ROOT%{py3_sitescriptdir}/%{module}/examples
-%{__rm} -r $RPM_BUILD_ROOT%{py3_sitescriptdir}/%{module}/tests
 
 install -d $RPM_BUILD_ROOT%{_examplesdir}/python3-%{module}-%{version}
 cp -a examples/* $RPM_BUILD_ROOT%{_examplesdir}/python3-%{module}-%{version}
